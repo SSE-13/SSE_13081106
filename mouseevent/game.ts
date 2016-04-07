@@ -1,52 +1,150 @@
 
 var humanContainer = new render.DisplayObjectContainer();
-var head = new render.Bitmap();
-head.x = 100;
-head.source = "wander-icon.jpg";
-humanContainer.addChild(head);
+var human = new render.DisplayObjectContainer;
+human.x = -50;
+human.y = -65;
 
+var head = new render.Bitmap();
+head.x = 20;
+head.y = 0;
+head.z = 80;
+head.h = 70;
+
+var trunk = new render.Bitmap();
+trunk.x = 25;
+trunk.y = 40;
+var left_leg = new render.Bitmap();
+var right_leg = new render.Bitmap();
+var left_arm = new render.Bitmap();
+var right_arm = new render.Bitmap();
+left_leg.x = 20;
+left_leg.y = 100;
+left_leg.z = 20;
+left_leg.h = 50;
+
+right_leg.x = 55;
+right_leg.y = 100;
+right_leg.z = 20;
+right_leg.h = 51;
+
+left_arm.x = 8;
+left_arm.y= 50;
+right_arm.x = 60;
+right_arm.y= 50;
+//head.source = "wander-icon.jpg";
+//humanContainer.addChild(head)
+
+
+head.source = "head.png";
+trunk.source = "trunk.png";
+left_leg.source = "left_leg.png";
+right_leg.source = "right_leg.png";
+left_arm.source = "left_arm.png";
+right_arm.source = "right_arm.png";
+
+humanContainer.addChild(human);//添加子节点
+human.addChild(head)
+human.addChild(left_leg)
+human.addChild(right_leg)
+human.addChild(left_arm)
+human.addChild(right_arm)
+human.addChild(trunk)
 
 var renderCore = new render.RenderCore();
-renderCore.start(humanContainer, ["wander-icon.jpg"]);
+renderCore.start(humanContainer, ["head.png"]);
+renderCore.start(humanContainer, ["trunk.png"]);
+renderCore.start(humanContainer, ["left_arm.png"]);
+renderCore.start(humanContainer, ["right_arm.png"]);
+renderCore.start(humanContainer, ["left_leg.png"]);
+renderCore.start(humanContainer, ["right_leg.png"]);
 
 class HumanBody extends Body {
     
     
     vx:number = 5;
-    
+        r = Math.PI;
+    orientation = 1;
 
     onTicker(duringTime: number) {
-        this.x = 100;//+= duringTime * this.vx;
-        this.y = 100;
+        this.x =this.x+this.vx*duringTime;//+= duringTime * this.vx;
+        this.rotation = this.rotation+this.r*duringTime;
 
     }
 }
 
 var ticker = new Ticker();
 var body = new HumanBody(humanContainer);
+body.vx = 5;
+body.y = 200;
 ticker.start([body]);
 
 
 var eventCore = new events.EventCore();
 eventCore.init();
 
+var HeadClicked = false;
+var LegClicked = false;
+
 var headHitTest = (localPoint:math.Point,displayObject:render.DisplayObject) =>{
-    alert (`点击位置为${localPoint.x},${localPoint.y}`);
-    return true;
+    //alert (`点击位置为${localPoint.x},${localPoint.y}`);
+    if (localPoint.x > 0 && localPoint.x <= displayObject.z && localPoint.y > 0 && localPoint.y <= displayObject.h) {
+        console.log('头');
+        HeadClicked = true;
+    }
+    return HeadClicked;
+}
+
+var left_legHitTest = (localPoint: math.Point, displayObject: render.DisplayObject) => {
+    // alert (`点击位置为${localPoint.x},${localPoint.y}`);  
+    // console.log(localPoint);
+    if (localPoint.x > 0 && localPoint.x <= displayObject.z && localPoint.y > 0 && localPoint.y < displayObject.h) {
+        LegClicked = true;
+    }
+    return LegClicked;
+
+}
+var right_legHitTest = (localPoint: math.Point, displayObject: render.DisplayObject) => {
+
+    if (localPoint.x > 0 && localPoint.x <= displayObject.z && localPoint.y > 0 && localPoint.y < displayObject.h) {
+        LegClicked = true;
+    }
+    return LegClicked;
 }
 
 var headOnClick = () => {
-    alert("clicked!!");
+    //alert("clicked!!");
     //修改 HumanBody 的速度，使其反向移动
+    console.log(body.orientation);
+    if (HeadClicked) {
+        if (body.vx == 0) {
+            body.vx = 5 * body.orientation;
+            body.r = Math.PI * body.orientation;
+            HeadClicked = false;
+        } else {
+            body.vx *= -1;
+            body.r *= -1;
+            body.orientation *= -1;
+            console.log('normal' + body.orientation);
+            HeadClicked = false;
+        }
+    }
+
+
+}
+var LegOnClick = () => {
+
+    if (LegClicked) {
+        body.vx = 0;
+        body.r = 0;
+        body.rotation = 0;
+        LegClicked = false;
+    }
+
 }
 
-eventCore.register(head,headHitTest,headOnClick);
-
-
-
-
-
-
+eventCore.register(head, headHitTest, headOnClick);
+eventCore.register(left_leg, left_legHitTest, LegOnClick);
+eventCore.register(right_leg, right_legHitTest, LegOnClick);
 
 
 

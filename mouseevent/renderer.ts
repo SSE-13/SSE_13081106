@@ -15,6 +15,8 @@ module render {
 
         x = 0;
         y = 0;
+        z = 0;
+        h = 0;
         scaleX = 1;
         scaleY = 1;
         rotation = 0;
