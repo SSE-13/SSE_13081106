@@ -1,4 +1,4 @@
-module astar {
+module astar {   
 
 
     export class Node {
